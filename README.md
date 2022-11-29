@@ -2,22 +2,36 @@
 
 [![GitHub Build Status](https://github.com/cisagov/setup-go-package/workflows/build/badge.svg)](https://github.com/cisagov/setup-go-package/actions)
 
-This is a generic skeleton project that can be used to quickly get a
-new [cisagov](https://github.com/cisagov) GitHub project started.
-This skeleton project contains [licensing information](LICENSE), as
-well as [pre-commit hooks](https://pre-commit.com) and
-[GitHub Actions](https://github.com/features/actions) configurations
-appropriate for the major languages that we use.
+A [GitHub composite action](https://docs.github.com/en/actions/creating-actions/creating-a-composite-action)
+to install a given Go package with the specified version/tag.
 
-In many cases you will instead want to use one of the more specific
-skeleton projects derived from this one.
+## Inputs ##
 
-## New Repositories from a Skeleton ##
+| Name | Description |
+|------|-------------|
+| source | The source for the Go package to install. |
+| version | The version or tag to use for the Go package. |
 
-Please see our [Project Setup guide](https://github.com/cisagov/development-guide/tree/develop/project_setup)
-for step-by-step instructions on how to start a new repository from
-a skeleton. This will save you time and effort when configuring a
-new repository!
+## Outputs ##
+
+None
+
+## Usage ##
+
+```yaml
+---
+name: CI
+on:
+  - push
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: cisagov/setup-go-package@v0
+        with:
+          source: github.com/terraform-docs/terraform-docs
+          version: "1.2.3"
+```
 
 ## Contributing ##
 
