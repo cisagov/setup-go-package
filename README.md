@@ -27,7 +27,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-      - uses: cisagov/setup-go-package@v0.0.1
+      - uses: cisagov/setup-go-package@v0.0.1-rc.1
         with:
           source: github.com/terraform-docs/terraform-docs
           version: "1.2.3"
