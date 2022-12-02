@@ -1,0 +1,27 @@
+---
+author: Cybersecurity and Infrastructure Security Agency
+branding:
+  color: blue
+  icon: arrow-down
+description: Installs the specified Go package.
+name: Setup Go Package
+
+inputs:
+  source:
+    description: The source for the Go package to install.
+    required: true
+  version:
+    description: The version or tag to use for the Go package.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Verify Go is available
+      id: find-go
+      run: echo "go-location=$(command -v go)" >> $GITHUB_OUTPUT
+      shell: bash
+    - name: Install Go package
+      if: ${{ steps.find-go.outputs.go-location != '' }}
+      run: go install ${{ inputs.source }}@${{ inputs.version }}
+      shell: bash
