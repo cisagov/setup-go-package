@@ -1,0 +1,29 @@
+---
+name: Quick test
+
+on:  # yamllint disable-line rule:truthy
+  push:
+
+# Set a default shell for any run steps. The `-Eueo pipefail` sets errtrace,
+# nounset, errexit, and pipefail. The `-x` will print all commands as they are
+# run. Please see the GitHub Actions documentation for more information:
+# https://docs.github.com/en/actions/using-jobs/setting-default-values-for-jobs
+defaults:
+  run:
+    shell: bash -Eueo pipefail -x {0}
+
+jobs:
+  test:
+    permissions:
+      # actions/checkout needs this to fetch code
+      contents: read
+    runs-on: ubuntu-latest
+    steps:
+      - id: setup-env
+        uses: cisagov/setup-env-github-action@v1
+      - name: Print Go location
+        run: echo Go is located at $(command -v go)
+      - uses: cisagov/setup-go-package@improvement/annotate_if_go_not_found
+        with:
+          source: golang.org/x/tools/cmd/goimports
+          version: ${{ steps.setup-env.outputs.goimports-version }}
