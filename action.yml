@@ -30,9 +30,10 @@ runs:
       run: echo "go-location=$(command -v go)" >> $GITHUB_OUTPUT
       shell: bash -Eueo pipefail -x {0}
     - if: ${{ steps.find-go.outputs.go-location == '' }}
-      name: Create annotation if Go wasn't found
+      name: Create annotation end exit with an error code if Go isn't found
       run: |
         echo "::error title=Go not found::Please ensure Go is installed on the runner"
+        exit 1
       shell: bash -Eueo pipefail -x {0}
     - if: ${{ steps.find-go.outputs.go-location != '' }}
       name: Install Go package
