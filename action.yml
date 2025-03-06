@@ -17,11 +17,11 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Verify Go is available
-      id: find-go
+    - id: find-go
+      name: Verify Go is available
       run: echo "go-location=$(command -v go)" >> $GITHUB_OUTPUT
       shell: bash
-    - name: Install Go package
-      if: ${{ steps.find-go.outputs.go-location != '' }}
+    - if: ${{ steps.find-go.outputs.go-location != '' }}
+      name: Install Go package
       run: go install ${{ inputs.source }}@${{ inputs.version }}
       shell: bash
