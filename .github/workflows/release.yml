@@ -1,0 +1,89 @@
+---
+name: release
+
+on:
+  release:
+    types:
+      - released
+
+# Set a default shell for any run steps. The `-Eueo pipefail` sets
+# errtrace, nounset, errexit, and pipefail. The `-x` will print all
+# commands as they are run. Please see the GitHub Actions
+# documentation for more information:
+# https://docs.github.com/en/actions/using-jobs/setting-default-values-for-jobs
+defaults:
+  run:
+    shell: bash -Eueo pipefail -x {0}
+
+jobs:
+  diagnostics:
+    name: Run diagnostics
+    # This job does not need any permissions
+    permissions: {}
+    runs-on: ubuntu-latest
+    steps:
+      # Note that a duplicate of this step must be added at the top of
+      # each job.
+      - uses: GitHubSecurityLab/actions-permissions/monitor@v1
+        with:
+          # Uses the organization variable unless overridden
+          config: ${{ vars.ACTIONS_PERMISSIONS_CONFIG }}
+      # Note that a duplicate of this step must be added at the top of
+      # each job.
+      - id: harden-runner
+        name: Harden the runner
+        uses: step-security/harden-runner@v2
+        with:
+          egress-policy: audit
+      - id: github-status
+        name: Check GitHub status
+        uses: crazy-max/ghaction-github-status@v4
+      - id: dump-context
+        name: Dump context
+        uses: crazy-max/ghaction-dump-context@v2
+  release:
+    needs:
+      - diagnostics
+    permissions:
+      # We need write permission to move tags
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: GitHubSecurityLab/actions-permissions/monitor@v1
+        with:
+          # Uses the organization variable unless overridden
+          config: ${{ vars.ACTIONS_PERMISSIONS_CONFIG }}
+      - id: harden-runner
+        name: Harden the runner
+        uses: step-security/harden-runner@v2
+        with:
+          egress-policy: audit
+      - id: extract-semver-parts
+        name: Extract semver parts
+        uses: zyactions/semver@v1
+        with:
+          # This input consists of a newline-separated list of version
+          # prefixes, so in the interest of future expansion we go
+          # ahead and use the YAML multiline literal style indicator.
+          prefixes: |
+            v
+      - id: checkout-repo
+        name: Checkout the repository
+        uses: actions/checkout@v4
+      - id: move-tags
+        # Just in case...
+        if: ${{ steps.extract-semver-parts.outputs.valid == 'true' }}
+        name: Move tags
+        run: |
+          major_tag=v${{ steps.extract-semver-parts.outputs.major }}
+          major_minor_tag=${major_tag}.${{ steps.extract-semver-parts.outputs.minor }}
+          # Delete old tags remotely, if they exist
+          git ls-remote --exit-code --tags origin ${major_tag} \
+          && git push origin --delete ${major_tag}
+          git ls-remote --exit-code --tags origin ${major_minor_tag} \
+          && git push origin --delete ${major_minor_tag}
+          # Create new tags locally
+          git tag ${major_tag}
+          git tag ${major_minor_tag}
+          # Push up new tags
+          git push origin ${major_tag} ${major_minor_tag}

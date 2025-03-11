@@ -5,29 +5,42 @@
 A [GitHub composite action](https://docs.github.com/en/actions/creating-actions/creating-a-composite-action)
 to install a given Go package with the specified version/tag.
 
-## Inputs ##
-
-| Name | Description |
-|------|-------------|
-| source | The source for the Go package to install. |
-| version | The version or tag to use for the Go package. |
-
-## Outputs ##
-
-None
-
 ## Usage ##
 
-```yaml
+### Inputs ###
+
+| Name | Description | Interpreted Type | Default | Required |
+|------|-------------|------------------|---------|:--------:|
+| source | The source for the Go package to install. | `string` | n/a | yes |
+| version | The version or tag to use for the Go package. | `string` | n/a | yes |
+
+### Outputs ###
+
+None.
+<!--
+| Name | Description | Output Type |
+|------|-------------|-------------|
+| output_name | The output's description. | `output_type` |
+-->
+
+### Sample GitHub Actions workflow ###
+
+```yml
 ---
-name: CI
+name: The workflow
+
 on:
-  - push
+  pull_request:
+  push:
+
 jobs:
-  test:
+  my_job:
+    # This job does not need any permissions
+    permissions: {}
     runs-on: ubuntu-latest
     steps:
-      - uses: cisagov/setup-go-package@v0.0.1
+      - name: Install terraform-docs
+        uses: cisagov/setup-go-package@v0.0.1
         with:
           source: github.com/terraform-docs/terraform-docs
           version: "1.2.3"
