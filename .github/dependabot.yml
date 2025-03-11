@@ -22,8 +22,8 @@ updates:
       - dependency-name: hashicorp/setup-terraform
       - dependency-name: mxschmitt/action-tmate
       - dependency-name: step-security/harden-runner
-    #   # Managed by cisagov/skeleton-action-composite
-    #   - dependency-name: zyactions/semver
+      # Managed by cisagov/skeleton-action-composite
+      - dependency-name: zyactions/semver
     package-ecosystem: github-actions
     schedule:
       interval: weekly
