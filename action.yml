@@ -14,14 +14,22 @@ inputs:
     description: The version or tag to use for the Go package.
     required: true
 
+# We use a shell argument for each step that provides the same guardrails we
+# would have in our bash scripts. The `-Eueo pipefail` sets errtrace, nounset,
+# errexit, and pipefail. The `-x` will print all commands as they are run. We
+# are currently unable to set this as a default (like we can in workflows) so
+# this must be added to each step that runs shell commands. Please see the
+# following GitHub discussion that requests this feature for any status
+# updates: https://github.com/orgs/community/discussions/18597
+
 runs:
   using: composite
   steps:
     - id: find-go
       name: Verify Go is available
       run: echo "go-location=$(command -v go)" >> $GITHUB_OUTPUT
-      shell: bash
+      shell: bash -Eueo pipefail -x {0}
     - if: ${{ steps.find-go.outputs.go-location != '' }}
       name: Install Go package
       run: go install ${{ inputs.source }}@${{ inputs.version }}
-      shell: bash
+      shell: bash -Eueo pipefail -x {0}
