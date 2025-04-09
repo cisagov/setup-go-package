@@ -1,19 +1,28 @@
 ---
-name: release
+# For most projects, this workflow file will not need changing; you simply need
+# to commit it to your repository.
+#
+# You may wish to alter this file to override the set of languages analyzed,
+# or to provide custom queries or build logic.
+name: CodeQL
 
-on:  # yamllint disable-line rule:truthy
-  release:
+# The use of on here as a key is part of the GitHub actions syntax.
+# yamllint disable-line rule:truthy
+on:
+  merge_group:
     types:
-      - released
-
-# Set a default shell for any run steps. The `-Eueo pipefail` sets
-# errtrace, nounset, errexit, and pipefail. The `-x` will print all
-# commands as they are run. Please see the GitHub Actions
-# documentation for more information:
-# https://docs.github.com/en/actions/using-jobs/setting-default-values-for-jobs
-defaults:
-  run:
-    shell: bash -Eueo pipefail -x {0}
+      - checks_requested
+  pull_request:
+    # The branches here must be a subset of the ones in the push key
+    branches:
+      - develop
+  push:
+    # Dependabot-triggered push events have read-only access, but uploading code
+    # scanning requires write access.
+    branches-ignore:
+      - dependabot/**
+  schedule:
+    - cron: 0 2 * * 6
 
 jobs:
   diagnostics:
@@ -35,7 +44,7 @@ jobs:
           # monitor_permissions equal to "true".
           #
           # TODO: Re-enable this functionality when practical.  See
-          # cisagov/skeleton-action-composite#5 for more details.
+          # cisagov/skeleton-generic#207 for more details.
           monitor_permissions: "false"
           output_workflow_context: "true"
           # Use a variable to specify the permissions monitoring
@@ -52,13 +61,29 @@ jobs:
           # monitoring configuration *does not* require you to modify
           # this workflow.
           permissions_monitoring_config: ${{ vars.ACTIONS_PERMISSIONS_CONFIG }}
-  release:
+  analyze:
+    name: Analyze
     needs:
       - diagnostics
-    permissions:
-      # We need write permission to move tags
-      contents: write
     runs-on: ubuntu-latest
+    permissions:
+      # actions/checkout needs this to fetch code
+      contents: read
+      # required for all workflows
+      security-events: write
+    strategy:
+      fail-fast: false
+      matrix:
+        # Override automatic language detection by changing the below
+        # list
+        #
+        # Supported options are actions, c-cpp, csharp, go,
+        # java-kotlin, javascript-typescript, python, ruby, and swift.
+        language:
+          - actions
+        # Learn more...
+        # https://docs.github.com/en/github/finding-security-vulnerabilities-and-errors-in-your-code/configuring-code-scanning#overriding-automatic-language-detection
+
     steps:
       - name: Apply standard cisagov job preamble
         uses: cisagov/action-job-preamble@v1
@@ -70,7 +95,7 @@ jobs:
           # monitor_permissions equal to "true".
           #
           # TODO: Re-enable this functionality when practical.  See
-          # cisagov/skeleton-action-composite#5 for more details.
+          # cisagov/skeleton-generic#207 for more details.
           monitor_permissions: "false"
           # Use a variable to specify the permissions monitoring
           # configuration. By default this will yield the
@@ -86,32 +111,32 @@ jobs:
           # monitoring configuration *does not* require you to modify
           # this workflow.
           permissions_monitoring_config: ${{ vars.ACTIONS_PERMISSIONS_CONFIG }}
-      - id: extract-semver-parts
-        name: Extract semver parts
-        uses: zyactions/semver@v1
-        with:
-          # This input consists of a newline-separated list of version
-          # prefixes, so in the interest of future expansion we go
-          # ahead and use the YAML multiline literal style indicator.
-          prefixes: |
-            v
-      - id: checkout-repo
-        name: Checkout the repository
+
+      - name: Checkout repository
         uses: actions/checkout@v4
-      - id: move-tags
-        # Just in case...
-        if: ${{ steps.extract-semver-parts.outputs.valid == 'true' }}
-        name: Move tags
-        run: |
-          major_tag=v${{ steps.extract-semver-parts.outputs.major }}
-          major_minor_tag=${major_tag}.${{ steps.extract-semver-parts.outputs.minor }}
-          # Delete old tags remotely, if they exist
-          git ls-remote --exit-code --tags origin ${major_tag} \
-          && git push origin --delete ${major_tag}
-          git ls-remote --exit-code --tags origin ${major_minor_tag} \
-          && git push origin --delete ${major_minor_tag}
-          # Create new tags locally
-          git tag ${major_tag}
-          git tag ${major_minor_tag}
-          # Push up new tags
-          git push origin ${major_tag} ${major_minor_tag}
+
+      # Initializes the CodeQL tools for scanning.
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          languages: ${{ matrix.language }}
+
+      # Autobuild attempts to build any compiled languages (C/C++, C#, or
+      # Java). If this step fails, then you should remove it and run the build
+      # manually (see below).
+      - name: Autobuild
+        uses: github/codeql-action/autobuild@v3
+
+      # ℹ️ Command-line programs to run using the OS shell.
+      # 📚 https://git.io/JvXDl
+
+      # ✏️ If the Autobuild fails above, remove it and uncomment the following
+      #    three lines and modify them (or add more) to build your code if your
+      #    project uses a compiled language
+
+      # - run: |
+      #     make bootstrap
+      #     make release
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
