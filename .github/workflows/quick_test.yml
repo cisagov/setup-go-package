@@ -23,6 +23,10 @@ jobs:
         uses: cisagov/setup-env-github-action@v1
       - name: Print Go location
         run: echo Go is located at $(command -v go)
+      - name: Rename Go binary
+        run: sudo mv $(command -v go) $(command -v go)-backup
+      - name: Print Go location (again)
+        run: echo Go is located at $(command -v go)
       - uses: cisagov/setup-go-package@improvement/annotate_if_go_not_found
         with:
           source: golang.org/x/tools/cmd/goimports
