@@ -35,7 +35,6 @@ runs:
         echo "::error title=Go not found::Please ensure Go is installed on the runner"
         exit 1
       shell: bash -Eueo pipefail -x {0}
-    - if: ${{ steps.find-go.outputs.go-location != '' }}
-      name: Install Go package
+    - name: Install Go package
       run: go install ${{ inputs.source }}@${{ inputs.version }}
       shell: bash -Eueo pipefail -x {0}
