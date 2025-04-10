@@ -40,7 +40,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Install terraform-docs
-        uses: cisagov/setup-go-package@851729f94b83a2fd48a47e15085271a24eaa242e # v1.0.0
+        uses: cisagov/setup-go-package@e7d5a7d8c497f15addbc13c54c8cb6f3822ed2d5 # v1.0.0
         with:
           source: github.com/terraform-docs/terraform-docs
           version: "1.2.3"
