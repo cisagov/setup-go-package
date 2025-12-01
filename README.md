@@ -1,6 +1,8 @@
 # setup-go-package #
 
 [![GitHub Build Status](https://github.com/cisagov/setup-go-package/workflows/build/badge.svg)](https://github.com/cisagov/setup-go-package/actions)
+[![License](https://img.shields.io/github/license/cisagov/setup-go-package)](https://spdx.org/licenses/)
+[![CodeQL](https://github.com/cisagov/setup-go-package/workflows/CodeQL/badge.svg)](https://github.com/cisagov/setup-go-package/actions/workflows/codeql-analysis.yml)
 
 A [GitHub composite action](https://docs.github.com/en/actions/creating-actions/creating-a-composite-action)
 to install a given Go package with the specified version/tag.
