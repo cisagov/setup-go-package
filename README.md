@@ -12,7 +12,7 @@ to install a given Go package with the specified version/tag.
 ### Inputs ###
 
 | Name | Description | Interpreted Type | Default | Required |
-|------|-------------|------------------|---------|:--------:|
+| ---- | ----------- | ---------------- | ------- | :------: |
 | source | The source for the Go package to install. | `string` | n/a | yes |
 | version | The version or tag to use for the Go package. | `string` | n/a | yes |
 
@@ -21,7 +21,7 @@ to install a given Go package with the specified version/tag.
 None.
 <!--
 | Name | Description | Output Type |
-|------|-------------|-------------|
+| ---- | ----------- | ----------- |
 | output_name | The output's description. | `output_type` |
 -->
 

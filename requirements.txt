@@ -1,4 +1,3 @@
 # The bump-version script requires at least version 3 of semver.
 semver>=3
-setuptools
-wheel
+setuptools>=70.1
